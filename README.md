@@ -1,4 +1,4 @@
-# Boss Monitor - 智能合约工程师职位监控系统
+# Boss Monitor - Boss直聘智能合约工程师职位监控系统
 
 [![Python](https://img.shields.io/badge/Python-3.12+-blue.svg)](https://python.org)
 [![Redis](https://img.shields.io/badge/Redis-5.0+-red.svg)](https://redis.io)
@@ -7,7 +7,7 @@
 
 ## 📋 项目简介
 
-Boss Monitor 是一个智能合约工程师职位监控系统，专门用于监控 Boss直聘网站上的智能合约相关职位，并通过飞书机器人实时推送符合条件的职位信息。
+Boss Monitor 是一个专门监控 Boss直聘网站上智能合约工程师职位的自动化系统。该系统能够实时监控全国15个主要城市的职位发布，智能筛选符合条件的职位（包含"智能合约"、"Solidity"、"区块链合约"关键词且薪资20K以上），并通过飞书机器人即时推送职位信息。
 
 ### 🎯 核心功能
 
@@ -24,19 +24,22 @@ Boss Monitor 是一个智能合约工程师职位监控系统，专门用于监�
 
 ```
 boss_monitor/
-├── main.py                 # 主程序入口
-├── spider.py              # 核心爬虫逻辑
+├── main.py                 # 主程序入口，启动BossAlert爬虫
+├── spider.py              # BossAlert爬虫核心逻辑，继承FuckCF基类
 ├── utils/                 # 工具模块
-│   ├── browser.py         # 浏览器自动化基类
-│   ├── lark_bot.py        # 飞书机器人接口
-│   ├── redisdb.py         # Redis数据库连接
-│   ├── scheduler.py       # 定时调度器
-│   └── spider_failed_alert.py  # 错误监控
-├── requirements.txt       # Python依赖
-├── pyproject.toml         # 项目配置
-├── Dockerfile            # Docker镜像构建
-├── docker-compose.yml    # Docker编排
-├── install.sh           # 自动安装脚本
+│   ├── __init__.py        # 工具包初始化
+│   ├── browser.py         # FuckCF浏览器自动化基类，Cloudflare绕过
+│   ├── lark_bot.py        # 飞书机器人消息发送接口
+│   ├── redisdb.py         # Redis连接池和数据库操作
+│   ├── scheduler.py       # 定时调度装饰器
+│   ├── spider_failed_alert.py  # 错误监控和告警装饰器
+│   └── config.py          # 环境变量配置管理
+├── requirements.txt       # Python依赖列表
+├── pyproject.toml         # 项目配置和依赖管理
+├── uv.lock               # uv锁定文件
+├── Dockerfile            # Docker镜像构建配置
+├── docker-compose.yml    # Docker服务编排配置
+├── install.sh           # Ubuntu/Debian自动安装脚本
 ├── DEPLOYMENT.md        # 详细部署指南
 └── SERVER_SETUP.md      # 服务器设置指南
 ```
@@ -145,24 +148,29 @@ chmod +x install.sh
 ### 核心技术
 
 - **Python 3.12+**: 主要开发语言
-- **patchright**: 浏览器自动化，用于绕过Cloudflare反爬虫
-- **Redis**: 缓存和去重存储
-- **requests**: HTTP请求处理
-- **asyncio**: 异步编程支持
+- **patchright**: 基于Playwright的浏览器自动化，用于绕过Cloudflare反爬虫
+- **Redis**: 缓存和去重存储，连接池管理
+- **requests**: HTTP请求处理，飞书机器人消息发送
+- **asyncio**: 异步编程支持，提高并发性能
+- **pyvirtualdisplay**: 虚拟显示支持，服务器环境运行
+- **retry**: 重试机制装饰器，提高系统稳定性
 
 ### 反爬虫技术
 
-- **Cloudflare绕过**: 自动检测和解决Cloudflare挑战
-- **浏览器指纹伪装**: 模拟真实浏览器行为
-- **请求重试机制**: 失败自动重试，提高成功率
-- **虚拟显示**: 支持无头浏览器运行
+- **Cloudflare绕过**: 基于CF-Clearance-Scraper改造，自动检测和解决Cloudflare挑战
+- **Turnstile挑战处理**: 自动处理Cloudflare Turnstile验证
+- **浏览器指纹伪装**: 模拟真实浏览器行为，禁用自动化检测特征
+- **请求重试机制**: 失败自动重试，最多3次，提高成功率
+- **虚拟显示支持**: 使用pyvirtualdisplay支持服务器环境无头运行
+- **智能等待机制**: 动态等待页面加载和挑战完成
 
 ### 监控和告警
 
-- **定时调度**: 每10分钟执行一次监控
-- **错误监控**: 自动捕获异常并发送告警
-- **去重机制**: 避免重复推送相同职位
-- **状态检查**: 实时监控爬虫运行状态
+- **定时调度**: 使用装饰器实现每10分钟自动执行监控任务
+- **错误监控**: ErrorMonitor装饰器自动捕获异常并发送飞书告警
+- **去重机制**: 使用Redis Set存储已推送职位ID，避免重复推送
+- **状态检查**: 实时监控爬虫运行状态，失败自动重试
+- **告警去重**: 24小时内同一爬虫故障只告警一次，避免告警轰炸
 
 ## 📊 功能特性
 
@@ -185,7 +193,9 @@ if salaryDesc_up_int < 20:
 
 ```python
 # 支持的城市代码
-codes = [100010000, 101010100, 101020100, ...]
+self.codes = [100010000, 101010100, 101020100, 101280100, 101280600, 
+              101210100, 101030100, 101110100, 101190400, 101200100, 
+              101230200, 101250100, 101270100, 101180100, 101040100]
 for code in self.codes:
     url = self.api.format(code)
     self.target_urls.append(url)
@@ -201,6 +211,12 @@ content = f"""{salaryDesc}
 {brandScaleName}
 {cityName}
 {url}"""
+
+# 去重检查
+alert_status = self.redis_cli.sismember(self.black_list_key, encryptJobId)
+if not alert_status:
+    sender(content, self.lark_hook)
+    self.redis_cli.sadd(self.black_list_key, encryptJobId)
 ```
 
 ## 🐳 Docker部署
@@ -292,20 +308,23 @@ DEL binance:listing:black
 
 ### 项目结构说明
 
-- **`main.py`**: 程序入口，启动BossAlert爬虫
-- **`spider.py`**: 核心爬虫类，继承自FuckCF基类
-- **`utils/browser.py`**: 浏览器自动化基类，提供Cloudflare绕过能力
-- **`utils/lark_bot.py`**: 飞书机器人消息发送接口
-- **`utils/redisdb.py`**: Redis连接和操作封装
-- **`utils/scheduler.py`**: 定时任务调度装饰器
-- **`utils/spider_failed_alert.py`**: 错误监控和告警装饰器
+- **`main.py`**: 程序入口，创建BossAlert实例并启动爬虫
+- **`spider.py`**: BossAlert爬虫类，继承自FuckCF基类，实现职位监控逻辑
+- **`utils/browser.py`**: FuckCF浏览器自动化基类，提供Cloudflare绕过能力
+- **`utils/lark_bot.py`**: 飞书机器人消息发送接口，支持富文本格式
+- **`utils/redisdb.py`**: Redis连接池管理，提供高可用数据库连接
+- **`utils/scheduler.py`**: 定时任务调度装饰器，支持多种调度模式
+- **`utils/spider_failed_alert.py`**: 错误监控装饰器，自动告警和去重
+- **`utils/config.py`**: 环境变量配置管理，统一配置入口
 
 ### 扩展开发
 
 1. **添加新城市**: 在`spider.py`中的`codes`列表添加城市代码
-2. **修改筛选条件**: 调整`name_check_list`和薪资门槛
+2. **修改筛选条件**: 调整`name_check_list`和薪资门槛阈值
 3. **自定义推送格式**: 修改`parse`方法中的`content`格式
 4. **添加新功能**: 继承`FuckCF`基类实现新的爬虫
+5. **修改调度频率**: 调整`@scheduled_task`装饰器的`duration`参数
+6. **自定义告警**: 修改`ErrorMonitor`装饰器的配置
 
 ### 代码示例
 
