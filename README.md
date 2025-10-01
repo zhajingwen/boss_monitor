@@ -63,6 +63,7 @@ cd boss-monitor
 cat > .env << EOF
 LARKBOT_ID=your_lark_bot_id
 REDIS_PASSWORD=your_redis_password
+ENV=prod
 EOF
 
 # 3. 启动服务
@@ -92,6 +93,7 @@ redis-server
 # 3. 设置环境变量
 export LARKBOT_ID="your_lark_bot_id"
 export REDIS_PASSWORD="your_redis_password"
+export ENV="local"  # 本地开发环境，跳过定时调度
 
 # 4. 运行项目
 python main.py
@@ -113,6 +115,21 @@ chmod +x install.sh
 |--------|------|------|------|
 | `LARKBOT_ID` | ✅ | 飞书机器人ID | `7bbfc97b-adc9c` |
 | `REDIS_PASSWORD` | ❌ | Redis密码 | `your_password` |
+| `ENV` | ❌ | 运行环境标识 | `local` 或 `prod` |
+
+#### ENV环境变量详细说明
+
+- **`local`**: 本地开发环境
+  - 跳过定时调度，立即执行任务
+  - 适合开发和测试
+  - 设置方式: `export ENV=local`
+
+- **`prod`**: 生产环境  
+  - 启用定时调度（每10分钟执行一次）
+  - 启用错误告警
+  - 设置方式: `export ENV=prod`
+
+- **未设置**: 默认按生产环境运行
 
 ### 监控城市配置
 
@@ -234,6 +251,7 @@ docker run -d \
   --name boss-monitor \
   -e LARKBOT_ID="your_bot_id" \
   -e REDIS_PASSWORD="your_password" \
+  -e ENV="prod" \
   boss-monitor
 ```
 
@@ -256,6 +274,7 @@ services:
     environment:
       - LARKBOT_ID=${LARKBOT_ID}
       - REDIS_PASSWORD=${REDIS_PASSWORD}
+      - ENV=${ENV:-prod}
     volumes:
       - ./logs:/app/logs
 ```
@@ -400,9 +419,13 @@ class CustomSpider(FuckCF):
 5. **环境变量配置**
    ```bash
    # 检查环境变量设置
-   echo $LARKBOT_ID
-   echo $REDIS_PASSWORD
-   echo $ENV
+   echo "LARKBOT_ID: $LARKBOT_ID"
+   echo "REDIS_PASSWORD: $REDIS_PASSWORD"
+   echo "ENV: $ENV"
+   
+   # 如果ENV未设置，默认按生产环境运行
+   # 本地开发请设置: export ENV=local
+   # 生产环境请设置: export ENV=prod
    ```
 
 6. **权限问题**
