@@ -10,7 +10,7 @@ def ErrorMonitor(spider_name, user=None):
     :param user: 用户名
     24个小时内单个爬虫的故障只告警一次
     """
-    webhook = 'https://open.larksuite.com/open-apis/bot/v2/hook/dc183d37-05f8-436d-bbde-cfa7b163a79b'
+    webhook = 'https://open.larksuite.com/open-apis/bot/v2/hook/'
     title = f'{spider_name}\n  @{user}'
     key_base = 'process:failed:filter:{}'
         
