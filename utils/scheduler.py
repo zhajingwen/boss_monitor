@@ -1,7 +1,7 @@
 import time
 import logging
 from datetime import datetime, timedelta
-# from config import env
+from utils.config import env
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 logger = logging.getLogger('Timer Scheduler')
@@ -24,10 +24,10 @@ def scheduled_task(start_time=None, duration=None, weekdays=None):
     """
     def decorator(func):
         def wrapper(*args, **kwargs):
-            # if env == 'local':
-            #     logger.info('开发环境，直接启动（放弃定时调度）')
-            #     func(*args, **kwargs)
-            #     return
+            if env == 'local':
+                logger.info('开发环境，直接启动（放弃定时调度）')
+                func(*args, **kwargs)
+                return
             logger.info('程序启动，等待调度中...')
             while True:
                 # 定时调度
