@@ -330,17 +330,35 @@ DEL binance:listing:black
 
 ```python
 class CustomSpider(FuckCF):
+    spider_name = 'Custom Spider'
+    author = 'your_name'
+    
     def __init__(self):
         super().__init__()
+        self.api = 'https://example.com/api/{}'
         self.target_urls = ['https://example.com']
     
     def parse(self, data):
         # 自定义解析逻辑
+        # 处理API返回的JSON数据
         pass
     
     async def on_response(self, meta, response):
-        # 自定义响应处理
+        # 拦截特定的API响应
+        if 'api/data' in response.url:
+            data = await response.json()
+            self.parse(data)
+            self.task_finished_status = True
+    
+    @ErrorMonitor(spider_name, author)
+    @retry(tries=3, delay=3)
+    def task(self):
+        # 自定义任务执行逻辑
         pass
+    
+    @scheduled_task(duration=300)  # 每5分钟执行一次
+    def run(self):
+        self.task()
 ```
 
 ## 🐛 故障排除
@@ -352,22 +370,46 @@ class CustomSpider(FuckCF):
    # 检查Redis服务状态
    sudo systemctl status redis-server
    redis-cli ping
+   
+   # 检查Redis密码配置
+   redis-cli -a your_password ping
    ```
 
-2. **浏览器依赖问题**
+2. **patchright浏览器依赖问题**
    ```bash
-   # 安装浏览器依赖
+   # 安装patchright依赖
+   patchright install-deps
+   patchright install
+   
+   # 安装系统依赖
    sudo apt install fonts-liberation libgtk-3-0 xvfb
    ```
 
 3. **飞书机器人配置**
    - 确保`LARKBOT_ID`环境变量正确设置
    - 检查飞书机器人webhook地址是否有效
+   - 验证机器人是否有发送消息的权限
 
-4. **权限问题**
+4. **Cloudflare绕过失败**
+   ```bash
+   # 检查浏览器启动参数
+   # 确保headless=False（必须是有头浏览器）
+   # 检查网络连接和代理设置
+   ```
+
+5. **环境变量配置**
+   ```bash
+   # 检查环境变量设置
+   echo $LARKBOT_ID
+   echo $REDIS_PASSWORD
+   echo $ENV
+   ```
+
+6. **权限问题**
    ```bash
    # 确保文件权限正确
    chmod +x main.py
+   chmod +x install.sh
    ```
 
 ### 调试模式
