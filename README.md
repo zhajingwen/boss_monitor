@@ -417,12 +417,29 @@ class CustomSpider(FuckCF):
 ```bash
 # 启用详细日志
 export PYTHONPATH=.
+export ENV=local  # 设置为本地环境，跳过定时调度
 python -c "
 import logging
 logging.basicConfig(level=logging.DEBUG)
 from main import main
 main()
 "
+
+# 或者直接运行
+python main.py
+```
+
+### 日志查看
+
+```bash
+# 查看实时日志
+tail -f boss_monitor.log
+
+# 查看Docker日志
+docker-compose logs -f boss-monitor
+
+# 查看系统服务日志
+sudo journalctl -u boss-monitor -f
 ```
 
 ## 📈 性能优化
@@ -437,9 +454,11 @@ main()
 ### 优化建议
 
 1. **Redis优化**: 配置Redis内存限制和持久化策略
-2. **并发控制**: 调整浏览器并发数量
-3. **缓存策略**: 优化Redis缓存过期时间
-4. **日志管理**: 定期清理日志文件
+2. **浏览器优化**: 调整重试次数和超时时间
+3. **缓存策略**: 优化Redis Set存储，定期清理过期数据
+4. **日志管理**: 定期清理日志文件，使用日志轮转
+5. **网络优化**: 使用代理池提高请求成功率
+6. **资源管理**: 合理配置浏览器实例数量
 
 ## 🤝 贡献指南
 
@@ -459,8 +478,9 @@ main()
 
 ## 🙏 致谢
 
-- 感谢 [patchright](https://github.com/patchright/patchright) 提供的浏览器自动化能力
+- 感谢 [patchright](https://github.com/patchright/patchright) 提供的基于Playwright的浏览器自动化能力
 - 感谢 [CF-Clearance-Scraper](https://github.com/Xewdy444/CF-Clearance-Scraper) 提供的Cloudflare绕过技术参考
+- 感谢 [Boss直聘](https://www.zhipin.com) 提供的职位数据平台
 
 ## 📞 支持
 
