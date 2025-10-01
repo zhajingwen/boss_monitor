@@ -97,7 +97,7 @@ class BossAlert(FuckCF):
             try:
                 oridata = await response.body()
                 format_data = json.loads(oridata)
-                print(format_data)
+                # print(format_data)
                 self.parse(format_data)
                 self.task_finished_status = True
             except:
