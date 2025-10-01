@@ -8,6 +8,7 @@
 # from utils.redisdb import redis_cli
 # # from config import env
 import logging
+import os
 import json
 # from datetime import datetime
 # from retry import retry
@@ -31,7 +32,9 @@ class BossAlert(FuckCF):
         super().__init__()
         self.black_list_key = 'binance:listing:black'
         self.api = 'https://www.zhipin.com/web/geek/jobs?city={}&query=%E5%90%88%E7%BA%A6%E5%B7%A5%E7%A8%8B%E5%B8%88'
-        self.lark_hook = 'https://open.larksuite.com/open-apis/bot/v2/hook/141f'
+        lark_bot_id = os.getenv('LARKBOT_ID')
+        self.lark_hook = f'https://open.feishu.cn/open-apis/bot/v2/hook/{lark_bot_id}'
+        # logger.info(f'lark_hook: {self.lark_hook}')
         self.codes = [100010000, 101010100, 101020100, 101280100, 101280600, 101210100, 101030100, 101110100, 101190400, 101200100, 101230200, 101250100, 101270100, 101180100, 101040100]
         for code in self.codes:
             url = self.api.format(code)
@@ -96,5 +99,6 @@ class BossAlert(FuckCF):
                 format_data = json.loads(oridata)
                 print(format_data)
                 self.parse(format_data)
+                self.task_finished_status = True
             except:
                 pass
