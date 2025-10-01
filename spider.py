@@ -1,20 +1,7 @@
-# import asyncio
-# import re
-# from enum import Enum
-# from typing import Optional
-# # 用patchright替换playwright
-# from patchright.async_api import async_playwright, Frame
-# from patchright.async_api import Error as PlaywrightError
-# from utils.redisdb import redis_cli
-# # from config import env
 import logging
-import os
 import json
-# from datetime import datetime
-# from retry import retry
 from utils.lark_bot import sender
-# from utils.scheduler import scheduled_task
-
+from utils.config import lark_bot_id
 from utils.browser import FuckCF
 
 
@@ -32,14 +19,11 @@ class BossAlert(FuckCF):
         super().__init__()
         self.black_list_key = 'binance:listing:black'
         self.api = 'https://www.zhipin.com/web/geek/jobs?city={}&query=%E5%90%88%E7%BA%A6%E5%B7%A5%E7%A8%8B%E5%B8%88'
-        lark_bot_id = os.getenv('LARKBOT_ID')
         self.lark_hook = f'https://open.feishu.cn/open-apis/bot/v2/hook/{lark_bot_id}'
-        # logger.info(f'lark_hook: {self.lark_hook}')
         self.codes = [100010000, 101010100, 101020100, 101280100, 101280600, 101210100, 101030100, 101110100, 101190400, 101200100, 101230200, 101250100, 101270100, 101180100, 101040100]
         for code in self.codes:
             url = self.api.format(code)
             self.target_urls.append(url)
-            # logger.info(f'GET {url}')
 
     def parse(self, data):
         """

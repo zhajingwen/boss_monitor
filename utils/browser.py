@@ -1,6 +1,5 @@
 import asyncio
 import re
-import os
 import logging
 from enum import Enum
 from retry import retry
@@ -13,11 +12,10 @@ from patchright.async_api import Error as PlaywrightError
 from utils.redisdb import redis_cli
 from utils.scheduler import scheduled_task
 from utils.spider_failed_alert import ErrorMonitor
+from utils.config import env
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 logger = logging.getLogger('Fuck CF')
-# env = 'local'
-env = os.getenv('ENV')
 
 """
 基于https://github.com/Xewdy444/CF-Clearance-Scraper改造
@@ -171,8 +169,6 @@ class FuckCF:
             binary_data = await response.body() # 直接获取 bytes
             print(f"获取到 PDF 文档，大小: {len(binary_data)} bytes")
             print(f"PDF 文档内容: {binary_data[:100]}...")  # 打印前100个字节
-            # with open("direct_download.pdf", "wb") as f:
-                # f.write(binary_data)
             headers['Content-Disposition'] = 'attachment; filename="document.pdf"'
             await route.fulfill(response=response, headers=headers)
             await asyncio.sleep(10)  # 等待页面加载完成

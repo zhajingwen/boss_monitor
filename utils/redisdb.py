@@ -1,5 +1,5 @@
 import redis
-import os
+from utils.config import redis_password
 from typing import Optional
 
 
@@ -37,7 +37,7 @@ def redis_cli(
     try:
         # 如果没有提供密码，尝试从环境变量获取
         if password is None:
-            password = os.getenv('REDIS_PASSWORD')
+            password = redis_password
         
         # 创建连接池
         pool = redis.ConnectionPool(
