@@ -1,0 +1,13 @@
+# Boss Monitor 项目依赖
+# 使用以下命令安装: pip install -r requirements.txt
+
+# 核心依赖
+patchright>=1.55.2
+pyvirtualdisplay>=3.0
+redis>=5.0.0
+requests>=2.32.5
+retry>=0.9.2
+
+# 额外依赖（基于代码分析）
+asyncio  # Python 内置，但某些环境可能需要
+typing-extensions>=4.0.0  # 用于类型提示
