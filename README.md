@@ -73,6 +73,14 @@ docker-compose logs -f boss-monitor
 
 ```bash
 # 1. 安装依赖
+# 使用 uv 安装 Python 依赖
+uv sync
+
+# 安装 patchright 浏览器依赖
+patchright install-deps
+patchright install
+
+# 或者使用传统方式安装 Python 依赖
 pip install -r requirements.txt
 
 # 2. 启动Redis服务

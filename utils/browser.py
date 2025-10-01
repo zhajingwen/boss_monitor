@@ -1,6 +1,6 @@
 import asyncio
 import re
-import json
+import os
 import logging
 from enum import Enum
 from retry import retry
@@ -11,13 +11,13 @@ from traceback import format_exc
 from patchright.async_api import async_playwright, Frame
 from patchright.async_api import Error as PlaywrightError
 from utils.redisdb import redis_cli
-# from config import env, config
 from utils.scheduler import scheduled_task
 from utils.spider_failed_alert import ErrorMonitor
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 logger = logging.getLogger('Fuck CF')
-env = 'local'
+# env = 'local'
+env = os.getenv('ENV')
 
 """
 基于https://github.com/Xewdy444/CF-Clearance-Scraper改造
