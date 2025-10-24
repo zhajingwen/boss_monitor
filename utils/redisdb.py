@@ -3,27 +3,9 @@ from utils.config import redis_password, redis_host
 from typing import Optional
 
 
-def redis_cli(
-    password: Optional[str] = None,
-    decode_responses: bool = True,
-    socket_timeout: Optional[int] = None,
-    socket_connect_timeout: Optional[int] = None,
-    max_connections: int = 50,
-    retry_on_timeout: bool = True,
-    **kwargs
-) -> redis.Redis:
+def redis_cli() -> redis.Redis:
     """
     创建并返回Redis客户端连接
-    
-    Args:
-        password: 密码，如果不提供则从环境变量REDIS_PASSWORD获取
-        decode_responses: 是否自动解码响应，默认为True
-        socket_timeout: 套接字超时时间（秒）
-        socket_connect_timeout: 连接超时时间（秒）
-        max_connections: 连接池最大连接数，默认为50
-        retry_on_timeout: 超时时是否重试，默认为True
-        **kwargs: 其他Redis连接参数
-        
     Returns:
         redis.Redis: Redis客户端实例
         
@@ -35,23 +17,12 @@ def redis_cli(
         REDIS_PASSWORD: Redis密码，当password参数为None时使用
     """
     try:
-        # 如果没有提供密码，尝试从环境变量获取
-        if password is None:
-            password = redis_password
-        if redis_host is None:
-            redis_host = "127.0.0.1"
         # 创建连接池
         pool = redis.ConnectionPool(
-            host=redis_host,  # 硬编码主机为127.0.0.1
+            host=redis_host,
             port=6379,  # 硬编码端口为6379
             db=0,  # 硬编码数据库为默认数据库0
-            password=password,
-            decode_responses=decode_responses,
-            socket_timeout=socket_timeout,
-            socket_connect_timeout=socket_connect_timeout,
-            max_connections=max_connections,
-            retry_on_timeout=retry_on_timeout,
-            **kwargs
+            password=redis_password,
         )
         
         # 创建Redis客户端
