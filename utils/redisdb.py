@@ -34,7 +34,7 @@ def redis_cli() -> redis.Redis:
         return client
         
     except redis.ConnectionError as e:
-        raise redis.ConnectionError(f"无法连接到Redis服务器 127.0.0.1:6379 - {str(e)}")
+        raise redis.ConnectionError(f"无法连接到Redis服务器{str(e)}")
     except redis.RedisError as e:
         raise redis.RedisError(f"Redis操作错误 - {str(e)}")
     except Exception as e:
