@@ -1,5 +1,5 @@
 import redis
-from utils.config import redis_password
+from utils.config import redis_password, redis_host
 from typing import Optional
 
 
@@ -38,10 +38,11 @@ def redis_cli(
         # 如果没有提供密码，尝试从环境变量获取
         if password is None:
             password = redis_password
-        
+        if redis_host is None:
+            redis_host = "127.0.0.1"
         # 创建连接池
         pool = redis.ConnectionPool(
-            host="127.0.0.1",  # 硬编码主机为127.0.0.1
+            host=redis_host,  # 硬编码主机为127.0.0.1
             port=6379,  # 硬编码端口为6379
             db=0,  # 硬编码数据库为默认数据库0
             password=password,
